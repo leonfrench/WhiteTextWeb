@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Mon Jun 11 17:34:35 PDT 2012
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=WhiteTextWeb_fat.jar
+manifest.mergeall=true
+manifest.mainclass=
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!-- creole.xml directory file for GATE builtins -->
+<!-- minimal setup to prevent GUI load (restricted by app engine) -->
+<CREOLE-DIRECTORY>
+  <!-- Language Resources -->
+  <CREOLE>
+    <!-- Documents -->
+    <RESOURCE>
+      <CLASS>gate.corpora.DocumentImpl</CLASS>
+    </RESOURCE>
+    <!-- Corpora -->
+    <RESOURCE>
+      <CLASS>gate.corpora.CorpusImpl</CLASS>
+    </RESOURCE>
+  </CREOLE>
+  <!-- creole.xml for Visual Resources -->
+</CREOLE-DIRECTORY>
