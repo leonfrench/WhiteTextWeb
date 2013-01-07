@@ -26,7 +26,6 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -39,8 +38,11 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasAlignment;
+import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -113,6 +115,33 @@ public class WhiteTextWeb implements EntryPoint {
 		// Focus the cursor on the name field when the app loads
 		suggestBox.setFocus(true);
 
+		InlineLabel citationLink = new InlineLabel("Cite");
+		citationLink.addStyleName("citeLink");
+
+		final DecoratedPopupPanel citaitonPopup = new DecoratedPopupPanel(true);
+		citaitonPopup.setWidth("300px");
+		String listing = "Please cite usage as: <br/><a target=\"blank\" href=\"http://bioinformatics.oxfordjournals.org/content/28/22/2963.long\">Application and evaluation of automated methods to extract neuroanatomical connectivity statements from free text. L French, S Lane, L Xu, C Siu, C Kwok, Y Chen, C Krebs and P Pavlidis. Bioinformatics, 2012</a>";
+		listing += "<br/>Click on the text results for citations to the extracted sentences (PubMed/MEDLINE).";
+
+		HTML html = new HTML(listing);
+
+		html.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				citaitonPopup.hide();
+			}
+		});
+
+		citaitonPopup.setWidget(html);
+
+		citationLink.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				citaitonPopup.center();
+
+			}
+		});
+
+		RootPanel.get("citationBoxContainer").add(citationLink);
+
 		greetingService.getDataStatistics(new AsyncCallback<DataStatistics>() {
 			public void onFailure(Throwable caught) {
 				errorLabel.setText("Remote Procedure Call - Failure");
@@ -137,10 +166,11 @@ public class WhiteTextWeb implements EntryPoint {
 		dataGrid.setWidth("100%");
 
 		final ListDataProvider<DataGridRow> dataProvider = new ListDataProvider<DataGridRow>();
-//		List<DataGridRow> data = dataProvider.getList();
-//		for (int i = 0; i < 50; i++) {
-//			data.add(new DataGridRow("Item " + i, "" + Math.random(), "" + Math.random()));
-//		}
+		// List<DataGridRow> data = dataProvider.getList();
+		// for (int i = 0; i < 50; i++) {
+		// data.add(new DataGridRow("Item " + i, "" + Math.random(), "" +
+		// Math.random()));
+		// }
 
 		// Set the message to display when the table is empty.
 		dataGrid.setEmptyTableWidget(new Label("No data to display. Type, then select a brain region to search."));
@@ -347,7 +377,7 @@ public class WhiteTextWeb implements EntryPoint {
 			}
 		});
 		matchColumn.setHorizontalAlignment(HasAlignment.ALIGN_CENTER);
-		dataGrid.addColumn(matchColumn, "Matched Region");
+		dataGrid.addColumn(matchColumn, "Query Region");
 
 		TextColumn<DataGridRow> connectColumn = new TextColumn<DataGridRow>() {
 			@Override
