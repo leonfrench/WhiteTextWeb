@@ -1,0 +1,128 @@
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the     -->
+<!-- browser's rendering engine into                -->
+<!-- "Standards Mode". Replacing this declaration   -->
+<!-- with a "Quirks Mode" doctype is not supported. -->
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<!--                                                               -->
+<!-- Consider inlining CSS to reduce the number of requested files -->
+<!--                                                               -->
+<link type="text/css" rel="stylesheet" href="WhiteTextWeb.css">
+
+<title>WhiteText</title>
+
+<!--                                           -->
+<!-- This script loads your compiled module.   -->
+<!-- If you add any GWT meta tags, they must   -->
+<!-- be added before this line.                -->
+<!--                                           -->
+<script type="text/javascript" language="javascript"
+	src="whitetextweb/whitetextweb.nocache.js"></script>
+<!-- Google Analytics                                    -->
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push([ '_setAccount', 'UA-33676955-1' ]);
+	_gaq.push([ '_trackPageview' ]);
+
+	(function() {
+		var ga = document.createElement('script');
+		ga.type = 'text/javascript';
+		ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl'
+				: 'http://www')
+				+ '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+</head>
+
+<!--                                           -->
+<!-- The body can have arbitrary html, or      -->
+<!-- you can leave the body empty if you want  -->
+<!-- to create a completely dynamic UI.        -->
+<!--                                           -->
+<body>
+
+	<!-- OPTIONAL: include this if you want history support -->
+	<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
+		style="position: absolute; width: 0; height: 0; border: 0"></iframe>
+
+	<!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+	<noscript>
+		<div
+			style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+			Your web browser must have JavaScript enabled in order for this
+			application to display correctly.</div>
+	</noscript>
+
+	<table width="100%">
+		<tr>
+			<td><h1 style="font-size: 400%; display: inline;">WhiteText</h1></td>
+			<td colspan="5" align="right" valign="bottom">
+				<table>
+					<tr>
+						<td colspan="3" align="right" style="font-size: 100%;"><a
+							href="http://www.chibi.ubc.ca/whitetext" style="color: blue;"
+							target="_blank">About</a> | <span id="citationBoxContainer"></span> | <span id="exportBoxContainer"></span>
+						</td>
+					</tr>
+					<tr>
+						<td style="white-space: nowrap; font-size: 200%;">Brain
+							region:</td>
+						<td id="suggestBoxContainer"></td>
+						<td id="sendButtonContainer"></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+	<table width="100%">
+		<tr>
+			<td style="font-size: 120%;" id="statsLabelContainer">
+				</div>
+			<td align="right" style="font-size: 120%; color: red;"
+				id="errorLabelContainer"></td>
+		</tr>
+	</table>
+
+	<!--  <table align="center">
+		<tr>
+			<td>Brain region mentions:</td>
+			<td id="brainRegionStatContainer"></td>
+		</tr>
+		<tr>
+			<td>Predicted connections:</td>
+			<td id="connectionsStatContainer"></td>
+		</tr>
+		<tr>
+			<td>Sentences:</td>
+			<td id="sentenceStatContainer"></td>
+		</tr>
+		<tr>
+			<td><br></td>
+		</tr>
+		<tr>
+			<td colspan="2" style="font-weight: bold;">Brain region to
+				search:</td>
+		</tr>
+		<tr>
+			<td id="suggestBoxContainer"></td>
+			<td id="sendButtonContainer"></td>
+		</tr>
+		<tr>
+			<td colspan="2" style="color: red;" id="errorLabelContainer"></td>
+		</tr>
+
+		<tr>
+			<td colspan="2" style="color: red;" id="errorLabelContainer"></td>
+		</tr>
+	</table> -->
+	<div align="center" id="dataGridContainer"
+		style='border: 1px dotted red; text-align: center;'></div>
+</body>
+</html>

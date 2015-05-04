@@ -29,6 +29,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
@@ -42,9 +43,11 @@ import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasAlignment;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.view.client.ListDataProvider;
@@ -62,10 +65,11 @@ public class WhiteTextWeb implements EntryPoint {
 	DataGrid<DataGridRow> dataGrid;
 	String regexForConnectionPreds;
 	Label errorLabel;
+	InlineHTML exportHTML;
 	// SimplePager pager;
 
-	private static final String SERVER_ERROR = "An error occurred while "
-			+ "attempting to contact the server. Please check your network " + "connection and try again.";
+	private static final String SERVER_ERROR = "An error occurred while " + "attempting to contact the server. Please check your network "
+			+ "connection and try again.";
 
 	/**
 	 * Create a remote service proxy to talk to the server-side service.
@@ -139,8 +143,10 @@ public class WhiteTextWeb implements EntryPoint {
 
 			}
 		});
-
 		RootPanel.get("citationBoxContainer").add(citationLink);
+
+		exportHTML = new InlineHTML("Export Table");
+		RootPanel.get("exportBoxContainer").add(exportHTML);
 
 		greetingService.getDataStatistics(new AsyncCallback<DataStatistics>() {
 			public void onFailure(Throwable caught) {
@@ -148,8 +154,8 @@ public class WhiteTextWeb implements EntryPoint {
 			}
 
 			public void onSuccess(DataStatistics result) {
-				Label statsLine = new Label("Indexing " + result.sentenceCount + " sentences with " + result.pairCount
-						+ " connections between " + result.regionInstanceCount + " brain region mentions.");
+				Label statsLine = new Label("Indexing " + result.sentenceCount + " sentences with " + result.pairCount + " connections between "
+						+ result.regionInstanceCount + " brain region mentions.");
 
 				RootPanel statsContainer = RootPanel.get("statsLabelContainer");
 				statsContainer.clear();
@@ -224,6 +230,8 @@ public class WhiteTextWeb implements EntryPoint {
 
 		// Create a handler for the sendButton and nameField
 		class MyHandler implements ClickHandler, KeyUpHandler {
+			boolean isWaiting = false;
+
 			/**
 			 * Fired when the user clicks on the sendButton.
 			 */
@@ -234,9 +242,11 @@ public class WhiteTextWeb implements EntryPoint {
 			/**
 			 * Fired when the user types in the nameField.
 			 */
-			public void onKeyUp(KeyUpEvent event) {
-				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+			public void onKeyUp(KeyUpEvent event) { // fires twice, seems it's a
+													// bug of sorts
+				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && !isWaiting) {
 					sendNameToServer();
+					// Window.alert(event.getSource().toString());
 				}
 			}
 
@@ -245,21 +255,40 @@ public class WhiteTextWeb implements EntryPoint {
 			 * response.
 			 */
 			private void sendNameToServer() {
+				isWaiting = true;
 				errorLabel.setText("");
-				String textToServer = suggestBox.getText();
+				final String textToServer = suggestBox.getText();
 				sendButton.setEnabled(false);
+				// Create a modal dialog box that will not auto-hide
+				final PopupPanel popup = new PopupPanel(false, true);
+				Label pleaseWait = new Label("Please wait..");
+				pleaseWait.addStyleName("pleaseWaitPanel");
+				popup.add(pleaseWait);
+				popup.setGlassEnabled(true); // Enable the glass panel
+				popup.center(); // Center the popup and make it visible
 
 				greetingService.greetServer(textToServer, new AsyncCallback<List<DataGridRow>>() {
+					public void reEnableInput() {
+						sendButton.setEnabled(true);
+						isWaiting = false;
+						popup.hide();
+					}
+
 					public void onFailure(Throwable caught) {
 						errorLabel.setText("Remote Procedure Call - Failure");
-						sendButton.setEnabled(true);
+						reEnableInput();
 					}
 
 					public void onSuccess(List<DataGridRow> result) {
 						// a setList is needed for sorthandler (due in new
 						// version)
 						// http://code.google.com/p/google-web-toolkit/issues/detail?id=7072
-						errorLabel.setText("Received " + result.size() + " rows");
+						// if ()
+						if (result.isEmpty()) {
+							errorLabel.setText("Sorry, no results are available for your input region.");
+						} else {
+							errorLabel.setText("Received " + result.size() + " rows");
+						}
 
 						int previousSize = dataGrid.getRowCount();
 						dataProvider.getList().clear();
@@ -268,10 +297,27 @@ public class WhiteTextWeb implements EntryPoint {
 						sortHandler.getList().addAll(result);
 						dataGrid.addColumnSortHandler(sortHandler);
 
+						// Make export table link - not sure how well this scales
+						if (!result.isEmpty()) {
+							String htmlOut = "";
+							htmlOut += DataGridRow.getTSVHeader() + "\n";
+
+							for (DataGridRow row : result) {
+								htmlOut += row.getAsTSVRow() + "\n";
+							}
+							htmlOut = "<a href=\"data:text/csv;charset=utf-8," + UriUtils.encode(htmlOut) + "\" download=\"WhiteText." + textToServer
+									+ ".output.tsv\"></i>Export Table</a>";
+							// exportHTML = new InlineHTML(
+							// "<a href=\"data:text/csv;charset=utf-8,ID%2CScore%2CAssignee%2CCreated%2CComment%0Aid_value0%2Cscore_value0%2Cassignee_value0%2Ccreated_value0%2Ccomment_value0%0Aid_value1%2Cscore_value1%2Cassignee_value1%2Ccreated_value1%2Ccomment_value1%0Aid_value2%2Cscore_value2%2Cassignee_value2%2Ccreated_value2%2Ccomment_value2%0A\" download=\"table.csv\"></i>Export Table</a>");
+							exportHTML.setHTML(htmlOut);
+						} else {
+							exportHTML.setHTML("Export Table"); // clear export table link
+						}
+
 						if (!result.isEmpty() && previousSize > 0) {
 							dataGrid.getRowElement(0).scrollIntoView();
 						}
-						sendButton.setEnabled(true);
+						reEnableInput();
 					}
 				});
 			}
@@ -307,8 +353,7 @@ public class WhiteTextWeb implements EntryPoint {
 					// text-decoration:underline
 					// font-weight: bold;
 					// color: #007A00
-					sentence = sentence.replaceAll(regexForConnectionPreds,
-							"<span STYLE=\"text-decoration:underline\">$1</span>");
+					sentence = sentence.replaceAll(regexForConnectionPreds, "<span STYLE=\"text-decoration:underline\">$1</span>");
 				} else {
 					// dependent on async call
 					// errorLabel.setText("regexForConnectionPreds is Null");
@@ -320,8 +365,7 @@ public class WhiteTextWeb implements EntryPoint {
 
 				String oldSentence = new String(sentence);
 				try {
-					sentence = sentence.replaceAll(match, "<span STYLE=\"font-weight:bold; color:#0101DF\">" + match
-							+ "</span>");
+					sentence = sentence.replaceAll(match, "<span STYLE=\"font-weight:bold; color:#0101DF\">" + match + "</span>");
 				} catch (Exception e) {
 					sentence = oldSentence;
 					// "\\Q", "\\E" doesn't work in google GWT regex
@@ -330,8 +374,7 @@ public class WhiteTextWeb implements EntryPoint {
 					// stuff in the brain regions
 				}
 				try {
-					sentence = sentence.replaceAll(connected, "<span STYLE=\"font-weight:bold; color:#FF0040\">"
-							+ connected + "</span>");
+					sentence = sentence.replaceAll(connected, "<span STYLE=\"font-weight:bold; color:#FF0040\">" + connected + "</span>");
 				} catch (Exception e) {
 					sentence = oldSentence;
 				}
@@ -465,8 +508,7 @@ public class WhiteTextWeb implements EntryPoint {
 			}
 
 			@Override
-			public void onBrowserEvent(Context context, Element parent, String value, NativeEvent event,
-					ValueUpdater<String> valueUpdater) {
+			public void onBrowserEvent(Context context, Element parent, String value, NativeEvent event, ValueUpdater<String> valueUpdater) {
 				switch (DOM.eventGetType((Event) event)) {
 				case Event.ONCLICK:
 					valueUpdater.update(value);

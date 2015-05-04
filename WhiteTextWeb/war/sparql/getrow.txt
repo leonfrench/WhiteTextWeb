@@ -1,0 +1,28 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX vocab: <http://www.chibi.ubc.ca/Gemma/ws/xml/neuroanatomyLinks.owl#>
+PREFIX airola:<http://www.purl.org/airolaXML/#>
+
+SELECT DISTINCT ?pair ?mention ?sentence ?mentionText ?mentionText2 ?sentenceText ?pmid ?score ?speciesLabel
+WHERE {
+	<http://ontology.neuinfo.org/NIF/BiomaterialEntities/NIF-GrossAnatomy.owl#birnlex_1237> ?zz ?term .
+                          ?term rdf:type vocab:neuroterm .
+                          ?mention vocab:match ?term .
+	?entity vocab:has_label_term ?mention   .
+	?mention rdfs:label ?mentionText .
+	?pair airola:relation_partner ?entity .
+	?pair airola:in_sentence ?sentence .
+	?pair airola:score ?score 		.
+	?sentence rdfs:label ?sentenceText .
+	?sentence vocab:in_PMID ?pmid                                 .
+	OPTIONAL {
+		?pmid vocab:mentions_species ?species	.
+		?species rdfs:label ?speciesLabel	.
+	}
+	OPTIONAL { 
+		?pair airola:relation_partner ?entity2 .
+		?entity2 vocab:has_label_term ?mention2   .
+		?mention2 rdfs:label ?mentionText2 .
+		FILTER (?entity != ?entity2)
+	} 
+} ORDER BY DESC(?score)

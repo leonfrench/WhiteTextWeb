@@ -34,8 +34,7 @@ public class DataGridRow implements IsSerializable, Serializable {
 		this.flagged = checked;
 	}
 
-	public DataGridRow(String pairURI, String sentence, String entityOne, String entityTwo, String speciesLabel,
-			String pmid, double score) {
+	public DataGridRow(String pairURI, String sentence, String entityOne, String entityTwo, String speciesLabel, String pmid, double score) {
 		super();
 		this.pairURI = pairURI;
 		this.sentence = sentence;
@@ -47,8 +46,7 @@ public class DataGridRow implements IsSerializable, Serializable {
 		this.score = score;
 	}
 
-	public DataGridRow(String sentence, String entityOne, String entityTwo, String speciesLabel, String pmid,
-			double score) {
+	public DataGridRow(String sentence, String entityOne, String entityTwo, String speciesLabel, String pmid, double score) {
 		super();
 		this.sentence = sentence;
 		this.entityOne = entityOne;
@@ -89,6 +87,17 @@ public class DataGridRow implements IsSerializable, Serializable {
 
 	public DataGridRow(String sentence) {
 		this.sentence = sentence;
+	}
+
+	public static String getTSVHeader() {
+		String TAB = "\t";
+		return "PMID" + TAB + "Sentence Text" + TAB + "Query Region" + TAB + "Connected region" + TAB + "Species co-mentioned" + TAB + "Score" + TAB + "PairURI" + TAB
+				+ "Pubmed URL";
+	}
+	public String getAsTSVRow() {
+		String TAB = "\t";
+		return pmid + TAB + sentence + TAB + entityOne + TAB + entityTwo + TAB + speciesLabel + TAB + score + TAB + pairURI + TAB
+				+ "http://www.ncbi.nlm.nih.gov/pubmed/" + pmid;
 	}
 
 	@Override

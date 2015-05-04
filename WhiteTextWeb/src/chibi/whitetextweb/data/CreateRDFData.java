@@ -35,7 +35,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * Creates the RDF data model that is loaded into the server.
  * 
  * This takes in data from several sources - GATE, Airola XML, SL classifier and
- * NIFSTD.
+ * NIFSTD. Needs GATE classes.
  * 
  * @author leon
  * 

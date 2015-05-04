@@ -12,6 +12,12 @@
 	<!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/> -->
 
 	<!-- Other module inherits -->
+	<!-- Super dev mode stuff, watch video below for instructions -->
+	<!-- http://jeff-davis.blogspot.fr/2012/07/setting-up-gwt-25s-superdevmode.html -->
+	<add-linker name="xsiframe" />
+	<set-configuration-property name="devModeRedirectEnabled"
+		value="true" />
+	<set-property name="compiler.useSourceMaps" value="true" />
 
 	<!-- Specify the app entry point class. -->
 	<entry-point class='chibi.whitetextweb.client.WhiteTextWeb' />
@@ -22,4 +28,6 @@
 
 
 	<entry-point class="chibi.whitetextweb.client.EntryPointTest"></entry-point>
+
+
 </module>

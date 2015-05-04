@@ -74,6 +74,7 @@ public class WhiteTextRDFModel extends EvaluationRDFModel implements Serializabl
 		super(true);
 		Model modelFresh = ModelFactory.createDefaultModel();
 		modelFresh.read(new FileInputStream(Config.config.getString("whitetextweb.RDFModel")), null);
+
 		labelToNIFURI = new HashMap<String, Resource>();
 		// super.modelLoad(modelFresh, true);
 		this.model = modelFresh;
@@ -236,7 +237,7 @@ public class WhiteTextRDFModel extends EvaluationRDFModel implements Serializabl
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		log.info("Termination of RDF query threads complete (" + threads + " threads)");
+		log.info("Termination of RDF query threads complete for " + queryRegions.size() + " regions (" + threads + " threads in pool)");
 
 		// gather up results
 		List<DataGridRow> result = new LinkedList<DataGridRow>();
@@ -296,14 +297,10 @@ public class WhiteTextRDFModel extends EvaluationRDFModel implements Serializabl
 			return result;
 
 		// query is also in /war/sparql/
-		String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
-				+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-				+ "PREFIX vocab: <http://www.chibi.ubc.ca/Gemma/ws/xml/neuroanatomyLinks.owl#>\n"
-				+ "PREFIX airola:<http://www.purl.org/airolaXML/#>\n"
-				+ "\n"
+		String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" + "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+				+ "PREFIX vocab: <http://www.chibi.ubc.ca/Gemma/ws/xml/neuroanatomyLinks.owl#>\n" + "PREFIX airola:<http://www.purl.org/airolaXML/#>\n" + "\n"
 				+ "SELECT DISTINCT ?pair ?mention ?term ?sentence ?mentionText ?mentionText2 ?sentenceText ?pmid ?score ?speciesLabel      \n"
-				+ "WHERE {                                                                                          \n"
-				+ "	<"
+				+ "WHERE {                                                                                          \n" + "	<"
 				+ NIFConcept.getURI()
 				+ "> ?zz ?term .                                      \n"
 				+ "                          ?term rdf:type vocab:neuroterm .                                             \n"
@@ -351,7 +348,7 @@ public class WhiteTextRDFModel extends EvaluationRDFModel implements Serializabl
 			result.add(new DataGridRow(pairURI, sentenceText, mentionText1, mentionText2, speciesLabel, pmid, score));
 		}
 
-		// Important â€“ free up resources used running the query
+		// Importantâ free up resources used running the query
 		qe.close();
 
 		log.info(" Get specific rows on server took:" + s.toString() + " Size:" + result.size());
