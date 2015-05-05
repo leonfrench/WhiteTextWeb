@@ -66,6 +66,12 @@ public class WhiteTextWeb implements EntryPoint {
 	String regexForConnectionPreds;
 	Label errorLabel;
 	InlineHTML exportHTML;
+	final String queryColToolTip = "Region or subregion matching your input region";
+	final String connectedRegionToolTip = "Region that is predicted to connect based on the sentence text";
+	final String speciesColToolTip = "The species name that is also mentioned in the source abstract (rows are duplicated if more than one species are mentioned)";
+	final String scoreColToolTip = "Confidence that the author is stating connectivity between the two regions (higher is better)";
+	final String reportColToolTip = "Please flag if the two marked regions are not described as connected";
+
 	// SimplePager pager;
 
 	private static final String SERVER_ERROR = "An error occurred while " + "attempting to contact the server. Please check your network "
@@ -119,31 +125,16 @@ public class WhiteTextWeb implements EntryPoint {
 		// Focus the cursor on the name field when the app loads
 		suggestBox.setFocus(true);
 
-		InlineLabel citationLink = new InlineLabel("Cite");
-		citationLink.addStyleName("citeLink");
+		String citationHTML = "Please cite usage as: <br/><a target=\"blank\" href=\"http://bioinformatics.oxfordjournals.org/content/28/22/2963.long\">Application and evaluation of automated methods to extract neuroanatomical connectivity statements from free text. L French, S Lane, L Xu, C Siu, C Kwok, Y Chen, C Krebs and P Pavlidis. Bioinformatics, 2012</a>";
+		citationHTML += "<br/><br/>Click on the text results for citations to the extracted sentences (PubMed/MEDLINE).";
 
-		final DecoratedPopupPanel citaitonPopup = new DecoratedPopupPanel(true);
-		citaitonPopup.setWidth("300px");
-		String listing = "Please cite usage as: <br/><a target=\"blank\" href=\"http://bioinformatics.oxfordjournals.org/content/28/22/2963.long\">Application and evaluation of automated methods to extract neuroanatomical connectivity statements from free text. L French, S Lane, L Xu, C Siu, C Kwok, Y Chen, C Krebs and P Pavlidis. Bioinformatics, 2012</a>";
-		listing += "<br/>Click on the text results for citations to the extracted sentences (PubMed/MEDLINE).";
-
-		HTML html = new HTML(listing);
-
-		html.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				citaitonPopup.hide();
-			}
-		});
-
-		citaitonPopup.setWidget(html);
-
-		citationLink.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				citaitonPopup.center();
-
-			}
-		});
+		InlineLabel citationLink = createPopup("Cite", citationHTML, "300px");
 		RootPanel.get("citationBoxContainer").add(citationLink);
+
+		String whatsThisHTML = "WhiteText Web provides quick and easy access to neuroanatomical reports of connectivity. <br /><br /> Just start typing in a brain region and select the region interest from the provided list. The system then returns all predicted statements of connectivity involving that region and its enclosing subregions (highlighted in blue). The resulting sentences and connections are highlighted for quick browsing. Just click on the sentence text to read the abstract in PubMed.<br /><br />You can sort by species or region by clicking on the column names. The full table can be downloaded by clicking on the \"Export Table\" link at the top right, allowing more detailed sorting and filtering. Just open the file in a spreadsheet program as a tab separated file. <br /><br />Click the flag icon and to let us know if you found a result row where the text is not reporting a connection between the two coloured regions.";
+
+		InlineLabel whatsThisLink = createPopup("What is this?", whatsThisHTML, "500px");
+		RootPanel.get("whatsThisBoxContainer").add(whatsThisLink);
 
 		exportHTML = new InlineHTML("Export Table");
 		RootPanel.get("exportBoxContainer").add(exportHTML);
@@ -297,7 +288,8 @@ public class WhiteTextWeb implements EntryPoint {
 						sortHandler.getList().addAll(result);
 						dataGrid.addColumnSortHandler(sortHandler);
 
-						// Make export table link - not sure how well this scales
+						// Make export table link - not sure how well this
+						// scales
 						if (!result.isEmpty()) {
 							String htmlOut = "";
 							htmlOut += DataGridRow.getTSVHeader() + "\n";
@@ -311,7 +303,8 @@ public class WhiteTextWeb implements EntryPoint {
 							// "<a href=\"data:text/csv;charset=utf-8,ID%2CScore%2CAssignee%2CCreated%2CComment%0Aid_value0%2Cscore_value0%2Cassignee_value0%2Ccreated_value0%2Ccomment_value0%0Aid_value1%2Cscore_value1%2Cassignee_value1%2Ccreated_value1%2Ccomment_value1%0Aid_value2%2Cscore_value2%2Cassignee_value2%2Ccreated_value2%2Ccomment_value2%0A\" download=\"table.csv\"></i>Export Table</a>");
 							exportHTML.setHTML(htmlOut);
 						} else {
-							exportHTML.setHTML("Export Table"); // clear export table link
+							exportHTML.setHTML("Export Table"); // clear export
+																// table link
 						}
 
 						if (!result.isEmpty() && previousSize > 0) {
@@ -327,6 +320,32 @@ public class WhiteTextWeb implements EntryPoint {
 		MyHandler handler = new MyHandler();
 		sendButton.addClickHandler(handler);
 		suggestBox.addKeyUpHandler(handler);
+	}
+
+	public InlineLabel createPopup(String name, String htmlCode, String width) {
+		InlineLabel citationLink = new InlineLabel(name);
+		citationLink.addStyleName("citeLink");
+
+		final DecoratedPopupPanel citaitonPopup = new DecoratedPopupPanel(true);
+		citaitonPopup.setWidth(width);
+		citaitonPopup.setGlassEnabled(true); // Enable the glass panel
+		HTML html = new HTML(htmlCode);
+
+		html.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				citaitonPopup.hide();
+			}
+		});
+
+		citaitonPopup.setWidget(html);
+
+		citationLink.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				citaitonPopup.center();
+
+			}
+		});
+		return citationLink;
 	}
 
 	private void setHeight() {
@@ -411,6 +430,12 @@ public class WhiteTextWeb implements EntryPoint {
 			public String getValue(DataGridRow object) {
 				return object.entityOne;
 			}
+
+			public void render(Context context, DataGridRow value, SafeHtmlBuilder sb) {
+				sb.appendHtmlConstant("<span title='" + queryColToolTip + "'>");
+				super.render(context, value, sb);
+				sb.appendHtmlConstant("</span>");
+			}
 		};
 		matchColumn.setSortable(true);
 		dataGrid.setColumnWidth(matchColumn, 160, Unit.PX);
@@ -420,13 +445,20 @@ public class WhiteTextWeb implements EntryPoint {
 			}
 		});
 		matchColumn.setHorizontalAlignment(HasAlignment.ALIGN_CENTER);
-		dataGrid.addColumn(matchColumn, "Query Region");
+		dataGrid.addColumn(matchColumn, SafeHtmlUtils.fromSafeConstant("<center title=\"" + queryColToolTip + "\">" + "Query Region" + "</span>"));
 
 		TextColumn<DataGridRow> connectColumn = new TextColumn<DataGridRow>() {
 			@Override
 			public String getValue(DataGridRow object) {
 				return object.entityTwo;
 			}
+
+			public void render(Context context, DataGridRow value, SafeHtmlBuilder sb) {
+				sb.appendHtmlConstant("<span title='" + connectedRegionToolTip + "'>");
+				super.render(context, value, sb);
+				sb.appendHtmlConstant("</span>");
+			}
+
 		};
 		connectColumn.setSortable(true);
 		connectColumn.setHorizontalAlignment(HasAlignment.ALIGN_CENTER);
@@ -437,7 +469,7 @@ public class WhiteTextWeb implements EntryPoint {
 				return o1.entityTwo.toLowerCase().compareTo(o2.entityTwo.toLowerCase());
 			}
 		});
-		dataGrid.addColumn(connectColumn, "Connected Region");
+		dataGrid.addColumn(connectColumn, SafeHtmlUtils.fromSafeConstant("<center title=\"" + connectedRegionToolTip + "\">" + "Connected Region" + "</span>"));
 
 		TextColumn<DataGridRow> speciesColumn = new TextColumn<DataGridRow>() {
 			@Override
@@ -447,7 +479,7 @@ public class WhiteTextWeb implements EntryPoint {
 
 			@Override
 			public void render(Context context, DataGridRow value, SafeHtmlBuilder sb) {
-				sb.appendHtmlConstant("<span title='species that are mentioned in the abstract'>");
+				sb.appendHtmlConstant("<span title='" + speciesColToolTip + "'>");
 				super.render(context, value, sb);
 				sb.appendHtmlConstant("</span>");
 			}
@@ -464,7 +496,7 @@ public class WhiteTextWeb implements EntryPoint {
 		// dataGrid.addColumnStyleName(dataGrid.getColumnIndex(speciesColumn),
 		// "center");
 
-		SafeHtml safe = SafeHtmlUtils.fromSafeConstant("<center>Species</center>");
+		SafeHtml safe = SafeHtmlUtils.fromSafeConstant("<center title=\"" + speciesColToolTip + "\">Species</center>");
 		dataGrid.addColumn(speciesColumn, safe);
 		// dataGrid.addColumn(speciesColumn, "Species");
 		// dataGrid.addColumn(speciesColumn, "Species");
@@ -478,7 +510,7 @@ public class WhiteTextWeb implements EntryPoint {
 			@Override
 			public void render(Context context, DataGridRow value, SafeHtmlBuilder sb) {
 				// tooltip
-				sb.appendHtmlConstant("<span title='confidence that the author is stating connectivity between the two regions (higher is better)'>");
+				sb.appendHtmlConstant("<span title='" + scoreColToolTip + "'>");
 				super.render(context, value, sb);
 				sb.appendHtmlConstant("</span>");
 			}
@@ -491,7 +523,7 @@ public class WhiteTextWeb implements EntryPoint {
 				return Double.compare(o1.score, o2.score);
 			}
 		});
-		dataGrid.addColumn(scoreColumn, "Score");
+		dataGrid.addColumn(scoreColumn, SafeHtmlUtils.fromSafeConstant("<center title=\"" + scoreColToolTip + "\">" + "Score" + "</span>"));
 
 		final ImageCell imageCell = new ImageCell() {
 			public Set<String> getConsumedEvents() {
@@ -502,7 +534,7 @@ public class WhiteTextWeb implements EntryPoint {
 
 			@Override
 			public void render(Context context, String value, SafeHtmlBuilder sb) {
-				sb.appendHtmlConstant("<span title='please flag if the two marked regions are not described as connected'>");
+				sb.appendHtmlConstant("<span title='" + reportColToolTip + "'>");
 				super.render(context, value, sb);
 				sb.appendHtmlConstant("</span>");
 			}
@@ -560,8 +592,7 @@ public class WhiteTextWeb implements EntryPoint {
 		});
 
 		dataGrid.setColumnWidth(flagColumn, 80, Unit.PX);
-		dataGrid.addColumn(flagColumn, "Report");
+		dataGrid.addColumn(flagColumn, SafeHtmlUtils.fromSafeConstant("<center title=\"" + reportColToolTip + "\">" + "Report" + "</span>"));
 
 	}
-
 }
