@@ -9,7 +9,6 @@ whitetextweb.NIFSTDTreeModel=<path>/WhiteTextWeb/WhiteTextWeb/war/data/NIFSTDTre
 whitetextweb.predicateList=<path>/git/WhiteTextWeb/WhiteTextWeb/war/data/predicateList.txt
 whitetextweb.flaggedLog=<path>/git/WhiteTextWeb/WhiteTextWeb/war/data/flaggedLog.txt
 
-#number of threads to use
 whitetextweb.threadsPerUser=1
 
 
