@@ -1,6 +1,6 @@
 # WhiteTextWeb
 
-An instance of this tool is online at http://www.chibi.ubc.ca/whitetext/app/
+An instance of this tool is online at https://whitetext.msl.ubc.ca/
 
 The key setup point is WhitetextWeb.properties. The other property files are needed to create the rdf input from GATE corpii.
 
